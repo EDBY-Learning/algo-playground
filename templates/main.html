@@ -1,0 +1,13 @@
+<form action='/quizz'>
+    <ol>
+            <h2>{{ q["Question"] }}</h2>
+            <p><img src="data:image;base64,{{ myimage |safe }}"><p></p>
+            <input type='radio' value="{{q['A']}}" name='0' />{{q['A']}}
+            <input type='radio' value="{{q['B']}}" name='0' />{{q['B']}}
+            <input type='radio' value="{{q['C']}}" name='0' />{{q['C']}}
+            <input type='radio' value="{{q['D']}}" name='0' />{{q['D']}}
+
+            
+    </ol>
+    <input type="submit" value="next" />
+</form>
