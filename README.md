@@ -6,3 +6,6 @@
 
     Current implementation
         Jinja and flask
+    
+    To run
+        python main.py
