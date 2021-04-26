@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 import random, copy
-from util import QuizzHandler
+from util import QuizHandler
 import pandas as pd
 
 app = Flask(__name__)
@@ -18,17 +18,32 @@ prereq_score = {
     "P1":20
 }
 
-quizz_details = {
-    "filename": 'E://school//template questions//questionTemplateGenerator//output//CBSE-maths-ch-4.csv',
-    "topic":"all"
+quiz_details = {
+    "filename": './content/class6-ch4.csv',
+    "topic":"all",
+    "chapter":4,
+    "class":6
 }
-quizz_handler = QuizzHandler(quizz_details, last_quzz_detail, prereq_score)
-quizz_handler.load_quizz()
 
+student_quiz_detail = {
+    'Type':None,
+    'Level':None,
+    'Correct':None,
+    "Questions":[]
+}
+
+quiz_handler = QuizHandler(quiz_details)
+
+def update_student_quiz_detail(question,answer='a'):
+    global student_quiz_detail 
+    student_quiz_detail['Type'] = question['Type']
+    student_quiz_detail['Level'] = question['Level']
+    student_quiz_detail['Correct'] = True 
+    student_quiz_detail['Questions'].append(question)
 
 @app.route('/')
 def start():
-    return '<h1>Quizz </h1>  <form action="/quizz"> <input type="submit" value="start" > </form>'
+    return '<h1>Quiz </h1>  <form action="/quiz"> <input type="submit" value="start" > </form>'
 
 def process_base64(string):
     if string=='' or pd.isnull(string):
@@ -36,15 +51,15 @@ def process_base64(string):
     image = (string[2:-1])
     return image
 
-@app.route('/quizz')
+@app.route('/quiz')
 def quiz():
- question = quizz_handler.question()
- 
- if question=={}:
-     return start() 
- image = process_base64(question['Encoded_img'])
- 
- return render_template('main.html', q = question,myimage=image)
+    question = quiz_handler.question(student_quiz_detail)
+    update_student_quiz_detail(question)
+    if question=={}:
+        return start() 
+    image = process_base64(question['Encoded_img'])
+
+    return render_template('main.html', q = question,myimage=image)
 
 
 # @app.route('/quiz', methods=['POST'])

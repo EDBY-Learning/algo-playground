@@ -1,4 +1,4 @@
-<form action='/quizz'>
+<form action='/quiz'>
     <ol>
             <h2>{{ q["Question"] }}</h2>
             <p><img src="data:image;base64,{{ myimage | safe }}"><p></p>
@@ -11,3 +11,4 @@
     </ol>
     <input type="submit" value="next" />
 </form>
+{{questions_level_list}}

@@ -1,41 +1,49 @@
 import pandas as pd
 import random 
 import base64
-class QuizzHandler:
-    def __init__(self,quizz_details,last_quzz_detail, prereq_score):
-        self.quizz_file = quizz_details['filename']
-        self.topic = quizz_details['topic']
-        self.last_quzz_detail = last_quzz_detail
-        self.prereq_score = prereq_score
-        self.question_count = 0
+
+"""
+C 1
+C 1
+CI 1
+C 2
+CI 1
+CI 2
+CIP 1
+CIP 1
+CIP 2
+CIP 2
+"""
+
+def filter_ques(questions,type_=None,level=None):
+    if (type_== None) and (level == None):
+        return questions
+    filtered = questions 
+    if type_:
+        filtered = list(filter(lambda x: x['Type'] == type_, filtered))
+    if level:
+        filtered = list(filter(lambda x: x['Type'] == type_, filtered))
+    if filtered:
+        return filtered
+    else:
+        return questions
+
+class QuizHandler:
+    def __init__(self,quiz_details):
+        self.class_ = quiz_details['class']
+        self.chapter = quiz_details['chapter']
+        self.questions = pd.read_csv(quiz_details['filename'],delimiter="|").to_dict('records')
     
-    def load_quizz(self):
-        self.all_qs = pd.read_csv(self.quizz_file, sep="|")
-        self.all_quizz_qs = self.all_qs[self.all_qs['Topic ']==self.topic]
-        self.cs = self.all_quizz_qs[self.all_quizz_qs['Type']=='C']
-        self.cis = self.all_quizz_qs[self.all_quizz_qs['Type']=='CI']
-        self.cips = self.all_quizz_qs[self.all_quizz_qs['Type']=='CIP']
-
-        print(self.all_qs.columns)
-
-
-
-
-    
-    def question(self):
-        if self.check_termination():
-            return {}
-        index = random.randint(0,len(self.all_qs)-1)
-        question = self.all_qs.iloc[index].to_dict()
-        self.question_count+=1
-        return question
+    def question(self,student_quiz_detail):
+        if student_quiz_detail['Type'] == None:
+            return filter_ques(self.questions,'C',2)[0]
+        elif student_quiz_detail['Type'] == 'C':
+            return filter_ques(self.questions,'CI',1)[0]
+        elif student_quiz_detail['Type'] == 'CI':
+            return filter_ques(self.questions,'CIP',2)[0]
+        elif student_quiz_detail['Type'] == 'CIP':
+            return filter_ques(self.questions,'C',1)[0]
+        
     
     def check_termination(self):
-        if self.question_count>12:
-            self.question_count=0
-            return True
-        pass
-
-
-    
-    
+        pass 
