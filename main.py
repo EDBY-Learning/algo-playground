@@ -45,7 +45,8 @@ def next_question():
 
     question = quiz_handler.question(student_quiz_detail)
     student_quiz_detail.update_current_question(question)
-    if question=={}:
+    if question==None:
+        #get_report
         return start() 
     image = process_base64(question['Encoded_img'])
     return render_template('main.html',student_quiz_detail=student_quiz_detail.Questions, q = question,myimage=image)

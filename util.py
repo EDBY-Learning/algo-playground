@@ -23,15 +23,16 @@ class StudentQuizDetail:
         self.Questions= []
     
     def update_current_question(self,current_question):
-        self.Type = current_question['Type']
-        self.Level = current_question['Level']
-        self.Questions.append({
-            'Type':self.Type,
-            'Level':self.Level,
-            'Correct':"NA",
-            'Correct_option':current_question['Answer'],
-            'user_answer':"NA"
-        })
+        if question!=None:
+            self.Type = current_question['Type']
+            self.Level = current_question['Level']
+            self.Questions.append({
+                'Type':self.Type,
+                'Level':self.Level,
+                'Correct':"NA",
+                'Correct_option':current_question['Answer'],
+                'user_answer':"NA"
+            })
     
     def update_answer(self,answer):
         if self.Questions[-1]['Correct_option'] ==  answer:
@@ -70,6 +71,9 @@ class QuizHandler:
             return filter_ques(self.questions,'CIP',2)[0]
         elif student_quiz_detail.Type == 'CIP':
             return filter_ques(self.questions,'C',1)[0]
+    
+    def analysis(self,student_quiz_detail):
+        pass
     
     def check_termination(self):
         pass 

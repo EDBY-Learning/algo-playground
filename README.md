@@ -14,3 +14,5 @@
 > Repeated questions should not come (adding ques_id to questions)
 > Algo
 > Filter
+
+type|Level|Img|Question|A|B|C|D|Answer|sub-topics|Prerequisite|image_path
