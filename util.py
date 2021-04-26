@@ -5,8 +5,8 @@ import base64
 """
 C 1
 C 1
-CI 1
 C 2
+CI 1
 CI 1
 CI 2
 CIP 1
@@ -70,24 +70,6 @@ class QuizHandler:
             return filter_ques(self.questions,'CIP',2)[0]
         elif student_quiz_detail.Type == 'CIP':
             return filter_ques(self.questions,'C',1)[0]
-        
-    
-    def check_answer(self,user_answer):
-        if self.curr_question['Answer'].lower()==user_answer.lower():
-            return True
-        return False
-    
-    def submit_answer(self,user_answer):
-        #if skipped i.e. user_answer==None
-        if user_answer==None:
-            #skipped the question
-            pass
-        else:
-            #check answer and update algorithm
-            pass
-    
-    def get_curr_question(self):
-        return self.curr_question
     
     def check_termination(self):
         pass 
