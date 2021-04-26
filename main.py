@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 import random, copy
-from util import QuizHandler
+from util import QuizHandler, StudentQuizDetail
 import pandas as pd
 
 app = Flask(__name__)
@@ -34,17 +34,6 @@ student_quiz_detail = {
 
 quiz_handler = QuizHandler(quiz_details)
 
-def update_student_quiz_detail(question,answer='a'):
-    global student_quiz_detail 
-    student_quiz_detail['Type'] = question['Type']
-    student_quiz_detail['Level'] = question['Level']
-    student_quiz_detail['Correct'] = True 
-    student_quiz_detail['Questions'].append({
-        'Type':student_quiz_detail['Type'],
-        'Level':student_quiz_detail['Level'],
-        'Correct':student_quiz_detail['Correct']
-    })
-
 @app.route('/')
 def start():
     return '<h1>Quiz </h1>  <form action="/next_question"> <input type="submit" value="start" > </form>'
@@ -71,25 +60,26 @@ def get_user_answer(form):
         return list(form.keys())[0]
     return None
 
+student_quiz_detail = StudentQuizDetail()
 
 @app.route('/next_question',methods=["GET","POST"])
 def next_question():
     if request.method=='GET':
         question = quiz_handler.question(student_quiz_detail)
-        update_student_quiz_detail(question)
+        
+        student_quiz_detail.update_current_question(question)
         image = process_base64(question['Encoded_img'])
-        return render_template('main.html',student_quiz_detail=student_quiz_detail['Questions'], q = question,myimage=image)
+        return render_template('main.html',student_quiz_detail=student_quiz_detail.Questions, q = question,myimage=image)
 
     user_answer = get_user_answer(request.form)
-    print(user_answer)
-    
+    student_quiz_detail.update_answer(user_answer)
 
     question = quiz_handler.question(student_quiz_detail)
-    update_student_quiz_detail(question,user_answer)
+    student_quiz_detail.update_current_question(question)
     if question=={}:
         return start() 
     image = process_base64(question['Encoded_img'])
-    return render_template('main.html',student_quiz_detail=student_quiz_detail['Questions'], q = question,myimage=image)
+    return render_template('main.html',student_quiz_detail=student_quiz_detail.Questions, q = question,myimage=image)
 
 # @app.route('/question_submit',methods=["POST"])
 # def quiz(request):

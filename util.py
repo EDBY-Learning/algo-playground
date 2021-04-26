@@ -15,6 +15,33 @@ CIP 2
 CIP 2
 """
 
+class StudentQuizDetail:
+    def __init__(self):
+        self.Type= None
+        self.Level= None
+        self.Correct= None
+        self.Questions= []
+    
+    def update_current_question(self,current_question):
+        self.Type = current_question['Type']
+        self.Level = current_question['Level']
+        self.Questions.append({
+            'Type':self.Type,
+            'Level':self.Level,
+            'Correct':"NA",
+            'Correct_option':current_question['Answer'],
+            'user_answer':"NA"
+        })
+    
+    def update_answer(self,answer):
+        if self.Questions[-1]['Correct_option'] ==  answer:
+            self.Questions[-1]['Correct'] = True 
+        else:
+            self.Questions[-1]['Correct'] = False 
+        self.Questions[-1]['user_answer'] = answer
+
+
+
 def filter_ques(questions,type_=None,level=None):
     if (type_== None) and (level == None):
         return questions
@@ -35,13 +62,13 @@ class QuizHandler:
         self.questions = pd.read_csv(quiz_details['filename'],delimiter="|").to_dict('records')
     
     def question(self,student_quiz_detail):
-        if student_quiz_detail['Type'] == None:
+        if student_quiz_detail.Type == None:
             return filter_ques(self.questions,'C',2)[0]
-        elif student_quiz_detail['Type'] == 'C':
+        elif student_quiz_detail.Type == 'C':
             return filter_ques(self.questions,'CI',1)[0]
-        elif student_quiz_detail['Type'] == 'CI':
+        elif student_quiz_detail.Type == 'CI':
             return filter_ques(self.questions,'CIP',2)[0]
-        elif student_quiz_detail['Type'] == 'CIP':
+        elif student_quiz_detail.Type == 'CIP':
             return filter_ques(self.questions,'C',1)[0]
         
     
