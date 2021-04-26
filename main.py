@@ -47,7 +47,7 @@ def update_student_quiz_detail(question,answer='a'):
 
 @app.route('/')
 def start():
-    return '<h1>Quiz </h1>  <form action="/quiz"> <input type="submit" value="start" > </form>'
+    return '<h1>Quiz </h1>  <form action="/next_question"> <input type="submit" value="start" > </form>'
 
 def process_base64(string):
     if string=='' or pd.isnull(string):
@@ -55,15 +55,46 @@ def process_base64(string):
     image = (string[2:-1])
     return image
 
-@app.route('/quiz')
-def quiz():
+# @app.route('/quiz')
+# def quiz():
+#     question = quiz_handler.question(student_quiz_detail)
+#     update_student_quiz_detail(question)
+#     if question=={}:
+#         return start() 
+#     image = process_base64(question['Encoded_img'])
+
+#     return render_template('main.html', q = question,student_quiz_detail=student_quiz_detail['Questions'],myimage=image)
+
+def get_user_answer(form):
+    keys = list(form.keys())
+    if len(keys)==1:
+        return list(form.keys())[0]
+    return None
+
+
+@app.route('/next_question',methods=["GET","POST"])
+def next_question():
+    if request.method=='GET':
+        question = quiz_handler.question(student_quiz_detail)
+        update_student_quiz_detail(question)
+        image = process_base64(question['Encoded_img'])
+        return render_template('main.html',student_quiz_detail=student_quiz_detail['Questions'], q = question,myimage=image)
+
+    user_answer = get_user_answer(request.form)
+    print(user_answer)
+    
+
     question = quiz_handler.question(student_quiz_detail)
-    update_student_quiz_detail(question)
+    update_student_quiz_detail(question,user_answer)
     if question=={}:
         return start() 
     image = process_base64(question['Encoded_img'])
+    return render_template('main.html',student_quiz_detail=student_quiz_detail['Questions'], q = question,myimage=image)
 
-    return render_template('main.html', q = question,student_quiz_detail=student_quiz_detail['Questions'],myimage=image)
+# @app.route('/question_submit',methods=["POST"])
+# def quiz(request):
+#     print(request.form)
+#     next_question()
 
 
 # @app.route('/quiz', methods=['POST'])
@@ -76,4 +107,4 @@ def quiz():
 #  return '<h1>Correct Answers: <u>'+str(correct)+'</u></h1>'
 
 if __name__ == '__main__':
- app.run(debug=True)
+    app.run(debug=True)
