@@ -11,4 +11,20 @@
     </ol>
     <input type="submit" value="next" />
 </form>
-{{questions_level_list}}
+
+<table class="table table-striped">
+    <tr>
+        {% for column in student_quiz_detail[0].keys() %}
+            <td>{{ column }}</td>
+        {% endfor %}
+    </tr>
+    
+    {% for row in student_quiz_detail %}
+        <tr>
+            {% for column in row.keys() %}
+                <td>{{ row[column] }}</td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+    
+</table>

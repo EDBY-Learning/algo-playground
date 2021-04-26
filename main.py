@@ -39,7 +39,11 @@ def update_student_quiz_detail(question,answer='a'):
     student_quiz_detail['Type'] = question['Type']
     student_quiz_detail['Level'] = question['Level']
     student_quiz_detail['Correct'] = True 
-    student_quiz_detail['Questions'].append(question)
+    student_quiz_detail['Questions'].append({
+        'Type':student_quiz_detail['Type'],
+        'Level':student_quiz_detail['Level'],
+        'Correct':student_quiz_detail['Correct']
+    })
 
 @app.route('/')
 def start():
@@ -59,7 +63,7 @@ def quiz():
         return start() 
     image = process_base64(question['Encoded_img'])
 
-    return render_template('main.html', q = question,myimage=image)
+    return render_template('main.html', q = question,student_quiz_detail=student_quiz_detail['Questions'],myimage=image)
 
 
 # @app.route('/quiz', methods=['POST'])
