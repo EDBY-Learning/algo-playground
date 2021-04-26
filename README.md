@@ -9,3 +9,8 @@
     
     To run
         python main.py
+
+# TODO
+> Repeated questions should not come (adding ques_id to questions)
+> Algo
+> Filter
