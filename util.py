@@ -50,7 +50,7 @@ def filter_ques(questions,type_=None,level=None):
     if type_:
         filtered = list(filter(lambda x: x['Type'] == type_, filtered))
     if level:
-        filtered = list(filter(lambda x: x['Type'] == type_, filtered))
+        filtered = list(filter(lambda x: x['Level'] == level, filtered))
     if filtered:
         return filtered
     else:
