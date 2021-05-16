@@ -23,7 +23,7 @@ class StudentQuizDetail:
         self.Questions= []
     
     def update_current_question(self,current_question):
-        if question!=None:
+        if current_question!=None:
             self.Type = current_question['Type']
             self.Level = current_question['Level']
             self.Questions.append({
@@ -62,15 +62,32 @@ class QuizHandler:
         self.chapter = quiz_details['chapter']
         self.questions = pd.read_csv(quiz_details['filename'],delimiter="|").to_dict('records')
     
+    def getNextTypeLevel(self,Type,Level,Jump):
+        level_order = [('C',1),('C',2),('CI',1),('C',3),('CI',2),('CIP',1),('CI',3),('CIP',2),('CIP',3)]
+        curr_index = level_order.index((Type,Level))
+
+        return level_order[max(min((curr_index+Jump),len(level_order)),0)]
+
     def question(self,student_quiz_detail):
         if student_quiz_detail.Type == None:
             return filter_ques(self.questions,'C',2)[0]
-        elif student_quiz_detail.Type == 'C':
-            return filter_ques(self.questions,'CI',1)[0]
-        elif student_quiz_detail.Type == 'CI':
-            return filter_ques(self.questions,'CIP',2)[0]
-        elif student_quiz_detail.Type == 'CIP':
-            return filter_ques(self.questions,'C',1)[0]
+        else:
+            if(student_quiz_detail.Questions[-1]['Correct']):
+                if(len(student_quiz_detail.Questions)>1 and student_quiz_detail.Questions[-2]['Correct']):
+                    next_question_Type, next_question_Level = self.getNextTypeLevel(student_quiz_detail.Type, student_quiz_detail.Level,2)
+                    return filter_ques(self.questions,next_question_Type, next_question_Level)[0]        
+                else:            
+                    next_question_Type, next_question_Level = self.getNextTypeLevel(student_quiz_detail.Type, student_quiz_detail.Level,1)
+                    return filter_ques(self.questions,next_question_Type, next_question_Level)[0]
+            else:
+                next_question_Type, next_question_Level = self.getNextTypeLevel(student_quiz_detail.Type, student_quiz_detail.Level,-1)
+                return filter_ques(self.questions,next_question_Type, next_question_Level)[0]
+        # elif student_quiz_detail.Type == 'C':
+        #     return filter_ques(self.questions,'CI',1)[0]
+        # elif student_quiz_detail.Type == 'CI':
+        #     return filter_ques(self.questions,'CIP',2)[0]
+        # elif student_quiz_detail.Type == 'CIP':
+        #     return filter_ques(self.questions,'C',1)[0]
     
     def analysis(self,student_quiz_detail):
         pass
