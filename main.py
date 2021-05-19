@@ -12,8 +12,7 @@ quiz_details = {
     "class":6
 }
 
-quiz_handler = QuizHandler(quiz_details)
-student_quiz_detail = StudentQuizDetail()
+
 
 @app.route('/')
 def start():
@@ -31,9 +30,16 @@ def get_user_answer(form):
         return list(form.keys())[0]
     return None
 
+student_quiz_detail = None
+quiz_handler = None
+
 @app.route('/next_question',methods=["GET","POST"])
 def next_question():
+    global quiz_handler
+    global student_quiz_detail
     if request.method=='GET':
+        quiz_handler = QuizHandler(quiz_details)
+        student_quiz_detail = StudentQuizDetail()
         question = quiz_handler.question(student_quiz_detail)
         
         student_quiz_detail.update_current_question(question)
@@ -47,6 +53,7 @@ def next_question():
     student_quiz_detail.update_current_question(question)
     if question==None:
         #get_report
+        print("QUIZZ ENDED")
         return start() 
     image = process_base64(question['Encoded_img'])
     return render_template('main.html',student_quiz_detail=student_quiz_detail.Questions, q = question,myimage=image)
