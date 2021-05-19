@@ -44,65 +44,67 @@ class StudentQuizDetail:
 
 
 
-def filter_ques(lo_count_dict, student_quiz_detail, questions,type_=None,level=None, positiveFlag=True):
-    if (type_== None) and (level == None):
-        return questions
-    #base termination cases
-    print(lo_count_dict)
-    if len(student_quiz_detail.Questions)>MAX_QUESTION_ALLOWED:
-        print("here",1)
-        return []
+# def filter_ques(lo_count_dict, student_quiz_detail, questions,type_=None,level=None, positiveFlag=True):
+#     if (type_== None) and (level == None):
+#         return questions
+#     #base termination cases
+#     print(lo_count_dict)
+#     if len(student_quiz_detail.Questions)>MAX_QUESTION_ALLOWED:
+#         print("max questions achieved. bye")
+#         return []
 
-    #termination based on question attempted
-    if len(student_quiz_detail.Questions)>MIN_QUESTION_TERMINATE:
-        print("here",1)
-        C_qs = sum([lo_count_dict.get(("C",l),0) for l in range(1,4)])
-        CI_qs = sum([lo_count_dict.get(("CI",l),0) for l in range(1,4)])
-        CIP_qs = sum([lo_count_dict.get(("CIP",l),0) for l in range(1,4)])
-        if CIP_qs>2:
-            return []
-        if CI_qs>3 and CIP_qs>1:
-            return []
-        if C_qs>5:
-            return []
+#     #termination based on question attempted
+#     if len(student_quiz_detail.Questions)>MIN_QUESTION_TERMINATE:
+#         C_qs = sum([lo_count_dict.get(("C",l),0) for l in range(1,4)])
+#         CI_qs = sum([lo_count_dict.get(("CI",l),0) for l in range(1,4)])
+#         CIP_qs = sum([lo_count_dict.get(("CIP",l),0) for l in range(1,4)])
+#         if CIP_qs>2:
+#             print("min questions to terminate achieved. bye")
+#             return []
+#         if CI_qs>3 and CIP_qs>1:
+#             print("min questions to terminate achieved. bye")
+#             return []
+#         if C_qs>5:
+#             print("min questions to terminate achieved. bye")
+#             return []
 
-    filtered = questions
-    usedIDList = [elem['ID'] for elem in student_quiz_detail.Questions] 
+#     filtered = questions
+#     usedIDList = [elem['ID'] for elem in student_quiz_detail.Questions] 
     
-    filtered = [elem for elem in filtered if elem['ID'] not in usedIDList]
+#     filtered = [elem for elem in filtered if elem['ID'] not in usedIDList]
 
-    #if no question left
-    if not filtered:
-        return []
-    if type_:
-        filtered = list(filter(lambda x: x['Type'] == type_, filtered))
-    if level:
-        filtered = list(filter(lambda x: x['Level'] == level, filtered))
-    if filtered:
-        if lo_count_dict[(type_,level)]<ESCAPE:
-            print("here i am")
-            lo_count_dict[(type_,level)] += 1
-            print(lo_count_dict," in same scope")
-            return filtered
+#     #if no question left
+#     if not filtered:
+#         return []
+#     if type_:
+#         filtered = list(filter(lambda x: x['Type'] == type_, filtered))
+#     if level:
+#         filtered = list(filter(lambda x: x['Level'] == level, filtered))
+#     if filtered:
+#         if lo_count_dict[(type_,level)]<ESCAPE:
+#             print("less than escape")
+#             lo_count_dict[(type_,level)] += 1
+#             print(lo_count_dict," in same scope")
+#             return filtered
         
-    # else:
-    #     return questions
-    if lo_count_dict[(type_,level)]>=ESCAPE:
-        print("here",3)
-        positiveFlag = True
-        next_question_Type = {"C":"CI","CI":"CIP","CIP":"CIP"}[type_]
-        next_question_Level = 1
-        lo_count_dict[(type_,level)] = 0
-    else:
-        jump = 1 if positiveFlag else -1
-        if (type_,level) in [("C",1),("C",2)]: #reflect to ceiling
-            positiveFlag = True
-            jump = 1
+#     # else:
+#     #     return questions
+#         else lo_count_dict[(type_,level)]==ESCAPE:
+#             print("I am escaping",3)
+#             positiveFlag = True
+#             next_question_Type = {"C":"CI","CI":"CIP","CIP":"CIP"}[type_]
+#             next_question_Level = 1
+#             lo_count_dict[(type_,level)] = 0
+#     else:
+#         jump = 1 if positiveFlag else -1
+#         if (type_,level) in [("C",1),("C",2)]: #reflect to ceiling
+#             positiveFlag = True
+#             jump = 1
 
-        next_question_Type, next_question_Level = getNextTypeLevel(type_,level,jump)
+#         next_question_Type, next_question_Level = getNextTypeLevel(type_,level,jump)
 
-    filtered = filter_ques(lo_count_dict, student_quiz_detail, questions,next_question_Type,next_question_Level, positiveFlag)
-    return filtered
+#     filtered = filter_ques(lo_count_dict, student_quiz_detail, questions,next_question_Type,next_question_Level, positiveFlag)
+#     return filtered
 
 def getNextTypeLevel(level_order,Type,Level,Jump):
     #level_order = [('C',1),('C',2),('CI',1),('C',3),('CI',2),('CIP',1),('CI',3),('CIP',2),('CIP',3)]
@@ -116,9 +118,9 @@ class QuizHandler:
         self.chapter = quiz_details['chapter']
         self.questions = pd.read_csv(quiz_details['filename'],delimiter="|").to_dict('records')
         print(pd.Series([(question['Type'],question['Level']) for question in self.questions]).value_counts())
-        self.HIGH_JUMP = 2 if len(self.questions)>20 else 1
+        self.HIGH_JUMP = 2 if len(self.questions)>=15 else 1
         self.LOW_JUMP = 1
-        self.MAX_QUESTION_ALLOWED = 12 if len(self.questions)>20 else 8
+        self.MAX_QUESTION_ALLOWED = 12 if len(self.questions)>20 else 12
         self.ESCAPE = 2
         self.MIN_QUESTION_TERMINATE = 8 if len(self.questions)>20 else 6
 
@@ -151,10 +153,12 @@ class QuizHandler:
             if(student_quiz_detail.Questions[-1]['Correct']):
                 if(len(student_quiz_detail.Questions)>1 and student_quiz_detail.Questions[-2]['Correct']):
                     jump = self.HIGH_JUMP if random.random()<0.7 else self.HIGH_JUMP-1
+                    print("jump:",jump)
                     next_question_Type, next_question_Level = getNextTypeLevel(self.level_order,student_quiz_detail.Type, student_quiz_detail.Level,jump)
                     print("xxx:",next_question_Type, next_question_Level)
                 else:
-                    jump = self.LOW_JUMP if random.random()<0.7 else self.LOW_JUMP-1            
+                    jump = self.LOW_JUMP if random.random()<0.7 else self.LOW_JUMP-1
+                    print("jump:",jump)     
                     next_question_Type, next_question_Level = getNextTypeLevel(self.level_order,student_quiz_detail.Type, student_quiz_detail.Level,jump)
             else:
                 positiveFlag = False
@@ -170,8 +174,8 @@ class QuizHandler:
             return questions
         #base termination cases
         print(self.lo_count_dict)
-        if len(student_quiz_detail.Questions)>self.MAX_QUESTION_ALLOWED:
-            print("here",1)
+        if len(student_quiz_detail.Questions)>=self.MAX_QUESTION_ALLOWED:
+            print("max questions achieved. bye")
             return []
 
         #termination based on question attempted
@@ -181,10 +185,13 @@ class QuizHandler:
             CI_qs = sum([self.lo_count_dict.get(("CI",l),0) for l in range(1,4)])
             CIP_qs = sum([self.lo_count_dict.get(("CIP",l),0) for l in range(1,4)])
             if CIP_qs>2:
+                print("min questions to terminate achieved. bye")
                 return []
             if CI_qs>3 and CIP_qs>1:
+                print("min questions to terminate achieved. bye")
                 return []
             if C_qs>5:
+                print("min questions to terminate achieved. bye")
                 return []
 
         filtered = questions
@@ -200,29 +207,33 @@ class QuizHandler:
         if level:
             filtered = list(filter(lambda x: x['Level'] == level, filtered))
         if filtered:
-            if self.lo_count_dict[(type_,level)]<=self.ESCAPE:
-                print("here i am")
+            if self.lo_count_dict[(type_,level)]<self.ESCAPE:
+                print("less than escape")
                 self.lo_count_dict[(type_,level)] += 1
                 print(self.lo_count_dict," in same scope")
                 return filtered
             
         # else:
         #     return questions
-        if self.lo_count_dict[(type_,level)]>self.ESCAPE:
-            print("here",3)
-            positiveFlag = True
-            next_question_Type = {"C":"CI","CI":"CIP","CIP":"CIP"}[type_]
-            next_question_Level = 1
-            self.lo_count_dict[(type_,level)] = 0
+
+        ### needs revision
+            else:
+                print("I am escaping")
+                positiveFlag = True
+                next_question_Type = {"C":"CI","CI":"CIP","CIP":"CIP"}[type_]
+                next_question_Level = 1
+                print("Escaping to",next_question_Type)
+                self.lo_count_dict[(type_,level)] = 0
         else:
             jump = 1 if positiveFlag else -1
-            if (type_,level) in [("C",1),("C",2)]: #reflect to ceiling
+            if (type_,level) in [("C",1)]: #reflect to ceiling
                 positiveFlag = True
                 jump = 1
+                print("bounced back")
 
             next_question_Type, next_question_Level = getNextTypeLevel(self.level_order,type_,level,jump)
 
-        filtered = self.filter_ques( student_quiz_detail, questions,next_question_Type,next_question_Level, positiveFlag)
+        filtered = self.filter_ques(student_quiz_detail, questions,next_question_Type,next_question_Level, positiveFlag)
         return filtered
     
     def analysis(self,student_quiz_detail):
